@@ -1,0 +1,18 @@
+{
+    "name": "Custom Chat Box",
+    "description": "Standalone chat from custom hud",
+    "author": "Seven|BLT by Mother_Flowers",
+    "contact": "http://steamcommunity.com/app/218620/discussions/15/490121928343220000/",
+    "version": "1.0",
+    "priority": 0,
+    "hooks": [
+        {
+            "hook_id": "lib/managers/hudmanagerpd2",
+            "script_path": "hudmanagerpd2.lua"
+        },
+        {
+            "hook_id": "lib/managers/hud/hudchat",
+            "script_path": "hudchat.lua"
+        }
+    ]
+}

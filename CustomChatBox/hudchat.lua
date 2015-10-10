@@ -227,104 +227,104 @@ function HUDChat:_layout_output_panel()
 end
 
 function HUDChat:receive_message(name, message, color, icon)
-        local output_panel = self._panel:child("output_panel")
-        local scroll_bar_bg = output_panel:child("scroll_bar_bg")
-        local x_offset = 0
-       
-        local msg_panel = output_panel:panel({
-                name = "msg_" .. tostring(#self._messages),
-                w = output_panel:w() - scroll_bar_bg:w(),
-        })
-        local msg_panel_bg = msg_panel:rect({
-                name = "bg",
-                alpha = 0.25,
-                color = color,
-                w = msg_panel:w(),
-        })
+    local output_panel = self._panel:child("output_panel")
+    local scroll_bar_bg = output_panel:child("scroll_bar_bg")
+    local x_offset = 0
 
-        local heisttime = managers.game_play_central and managers.game_play_central:get_heist_timer() or 0
-        local hours = math.floor(heisttime / (60*60))
-        local minutes = math.floor(heisttime / 60) % 60
-        local seconds = math.floor(heisttime % 60)
-        local time_format_text
-        if hours > 0 then
-                time_format_text = string.format("%d:%02d:%02d", hours, minutes, seconds)
-        else
-                time_format_text = string.format("%d:%02d", minutes, seconds)
-        end
-       
-        local time_text = msg_panel:text({
-                name = "time",
-                text = time_format_text,
-                font = tweak_data.menu.pd2_small_font,
-                font_size = HUDChat.LINE_HEIGHT * 0.95,
-                h = HUDChat.LINE_HEIGHT,
-                w = msg_panel:w(),
-                x = x_offset,
-                align = "left",
-                halign = "left",
-                vertical = "top",
-                hvertical = "top",
-                blend_mode = "normal",
-                wrap = true,
-                word_wrap = true,
-                color = Color.white,
-                layer = 1
+    local msg_panel = output_panel:panel({
+        name = "msg_" .. tostring(#self._messages),
+        w = output_panel:w() - scroll_bar_bg:w(),
+    })
+    local msg_panel_bg = msg_panel:rect({
+        name = "bg",
+        alpha = 0.25,
+        color = color,
+        w = msg_panel:w(),
+    })
+
+    local heisttime = managers.game_play_central and managers.game_play_central:get_heist_timer() or 0
+    local hours = math.floor(heisttime / (60*60))
+    local minutes = math.floor(heisttime / 60) % 60
+    local seconds = math.floor(heisttime % 60)
+    local time_format_text
+    if hours > 0 then
+        time_format_text = string.format("%d:%02d:%02d", hours, minutes, seconds)
+    else
+        time_format_text = string.format("%d:%02d", minutes, seconds)
+    end
+
+    local time_text = msg_panel:text({
+        name = "time",
+        text = time_format_text,
+        font = tweak_data.menu.pd2_small_font,
+        font_size = HUDChat.LINE_HEIGHT * 0.95,
+        h = HUDChat.LINE_HEIGHT,
+        w = msg_panel:w(),
+        x = x_offset,
+        align = "left",
+        halign = "left",
+        vertical = "top",
+        hvertical = "top",
+        blend_mode = "normal",
+        wrap = true,
+        word_wrap = true,
+        color = Color.white,
+        layer = 1
+    })
+    local _, _, w, _ = time_text:text_rect()
+    x_offset = x_offset + w + 2
+
+    if icon then
+        local icon_texture, icon_texture_rect = tweak_data.hud_icons:get_icon_data(icon)
+        local icon_bitmap = msg_panel:bitmap({
+            name = "icon",
+            texture = icon_texture,
+            texture_rect = icon_texture_rect,
+            color = color,
+            h = HUDChat.LINE_HEIGHT * 0.85,
+            w = HUDChat.LINE_HEIGHT * 0.85,
+            x = x_offset,
+            layer = 1,
         })
-        local _, _, w, _ = time_text:text_rect()
-        x_offset = x_offset + w + 2
-       
-        if icon then
-                local icon_texture, icon_texture_rect = tweak_data.hud_icons:get_icon_data(icon)
-                local icon_bitmap = msg_panel:bitmap({
-                        name = "icon",
-                        texture = icon_texture,
-                        texture_rect = icon_texture_rect,
-                        color = color,
-                        h = HUDChat.LINE_HEIGHT * 0.85,
-                        w = HUDChat.LINE_HEIGHT * 0.85,
-                        x = x_offset,
-                        layer = 1,
-                })
-                icon_bitmap:set_center_y(HUDChat.LINE_HEIGHT / 2)
-                x_offset = x_offset + icon_bitmap:w() + 1
-        end
-       
-        local message_text = msg_panel:text({
-                name = "msg",
-                text = name .. ": " .. message,
-                font = tweak_data.menu.pd2_small_font,
-                font_size = HUDChat.LINE_HEIGHT * 0.95,
-                w = msg_panel:w() - x_offset,
-                x = x_offset,
-                align = "left",
-                halign = "left",
-                vertical = "top",
-                hvertical = "top",
-                blend_mode = "normal",
-                wrap = true,
-                word_wrap = true,
-                color = Color.white,
-                layer = 1
-        })
-        local no_lines = message_text:number_of_lines()
-       
-        message_text:set_range_color(0, utf8.len(name) + 1, color)
-        message_text:set_h(HUDChat.LINE_HEIGHT * no_lines)
-        message_text:set_kern(message_text:kern())
-        msg_panel:set_h(HUDChat.LINE_HEIGHT * no_lines)
-        msg_panel_bg:set_h(HUDChat.LINE_HEIGHT * no_lines)
-       
-        self._total_message_lines = self._total_message_lines + no_lines
-        table.insert(self._messages, { panel = msg_panel, name = name, lines = no_lines })
-       
-        self:_layout_output_panel()
-        if not self._focus then
-                local output_panel = self._panel:child("output_panel")
-                output_panel:stop()
-                output_panel:animate(callback(self, self, "_animate_show_component"), output_panel:alpha())
-                output_panel:animate(callback(self, self, "_animate_fade_output"))
-        end
+        icon_bitmap:set_center_y(HUDChat.LINE_HEIGHT / 2)
+        x_offset = x_offset + icon_bitmap:w() + 1
+    end
+
+    local message_text = msg_panel:text({
+        name = "msg",
+        text = name .. ": " .. message,
+        font = tweak_data.menu.pd2_small_font,
+        font_size = HUDChat.LINE_HEIGHT * 0.95,
+        w = msg_panel:w() - x_offset,
+        x = x_offset,
+        align = "left",
+        halign = "left",
+        vertical = "top",
+        hvertical = "top",
+        blend_mode = "normal",
+        wrap = true,
+        word_wrap = true,
+        color = Color.white,
+        layer = 1
+    })
+    local no_lines = message_text:number_of_lines()
+
+    message_text:set_range_color(0, utf8.len(name) + 1, color)
+    message_text:set_h(HUDChat.LINE_HEIGHT * no_lines)
+    message_text:set_kern(message_text:kern())
+    msg_panel:set_h(HUDChat.LINE_HEIGHT * no_lines)
+    msg_panel_bg:set_h(HUDChat.LINE_HEIGHT * no_lines)
+
+    self._total_message_lines = self._total_message_lines + no_lines
+    table.insert(self._messages, { panel = msg_panel, name = name, lines = no_lines })
+
+    self:_layout_output_panel()
+    if not self._focus then
+        local output_panel = self._panel:child("output_panel")
+        output_panel:stop()
+        output_panel:animate(callback(self, self, "_animate_show_component"), output_panel:alpha())
+        output_panel:animate(callback(self, self, "_animate_fade_output"))
+    end
 end
 
 function HUDChat:enter_text(o, s)
@@ -381,122 +381,122 @@ function HUDChat:set_offset(offset)
 end
 
 function HUDChat:update_key_down(o, k)
-        wait(0.6)
-        local text = self._input_panel:child("input_text")
-        while self._key_pressed == k do
-                local s, e = text:selection()
-                local n = utf8.len(text:text())
-                local d = math.abs(e - s)
-                if self._key_pressed == Idstring("backspace") then
-                        if s == e and s > 0 then
-                                text:set_selection(s - 1, e)
-                        end
-                        text:replace_text("")
-                        self:_set_input_lines(#(text:line_breaks()))
-                        if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
-                        end
-                elseif self._key_pressed == Idstring("delete") then
-                        if s == e and s < n then
-                                text:set_selection(s, e + 1)
-                        end
-                        text:replace_text("")
-                        self:_set_input_lines(#(text:line_breaks()))
-                        if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
-                        end
-                elseif self._key_pressed == Idstring("left") then
-                        if s < e then
-                                text:set_selection(s, s)
-                        elseif s > 0 then
-                                text:set_selection(s - 1, s - 1)
-                        end
-                elseif self._key_pressed == Idstring("right") then
-                        if s < e then
-                                text:set_selection(e, e)
-                        elseif s < n then
-                                text:set_selection(s + 1, s + 1)
-                        end
-                elseif self._key_pressed == Idstring("up") then
-                        self:_change_line_offset(1)
-                elseif self._key_pressed == Idstring("down") then
-                        self:_change_line_offset(-1)
-                elseif self._key_pressed == Idstring("page up") then
-                        self:_change_line_offset(HUDChat.MAX_OUTPUT_LINES - self._current_input_lines)
-                elseif self._key_pressed == Idstring("page down") then
-                        self:_change_line_offset(-(HUDChat.MAX_OUTPUT_LINES - self._current_input_lines))
-                else
-                        self._key_pressed = false
-                end
-                self:update_caret()
-                wait(0.03)
-        end
-end
-
-function HUDChat:key_press(o, k)
-        if self._skip_first then
-                self._skip_first = false
-                return
-        end
-        if not self._enter_text_set then
-                self._input_panel:enter_text(callback(self, self, "enter_text"))
-                self._enter_text_set = true
-        end
-        local text = self._input_panel:child("input_text")
+    wait(0.6)
+    local text = self._input_panel:child("input_text")
+    while self._key_pressed == k do
         local s, e = text:selection()
         local n = utf8.len(text:text())
         local d = math.abs(e - s)
-        self._key_pressed = k
-        text:stop()
-        text:animate(callback(self, self, "update_key_down"), k)
-        if k == Idstring("backspace") then
-                if s == e and s > 0 then
-                        text:set_selection(s - 1, e)
-                end
-                text:replace_text("")
-                if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
-                end
-                self:_set_input_lines(#(text:line_breaks()))
-        elseif k == Idstring("delete") then
-                if s == e and s < n then
-                        text:set_selection(s, e + 1)
-                end
-                text:replace_text("")
-                if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
-                end
-                self:_set_input_lines(#(text:line_breaks()))
-        elseif k == Idstring("left") then
-                if s < e then
-                        text:set_selection(s, s)
-                elseif s > 0 then
-                        text:set_selection(s - 1, s - 1)
-                end
-        elseif k == Idstring("right") then
-                if s < e then
-                        text:set_selection(e, e)
-                elseif s < n then
-                        text:set_selection(s + 1, s + 1)
-                end
+        if self._key_pressed == Idstring("backspace") then
+            if s == e and s > 0 then
+                text:set_selection(s - 1, e)
+            end
+            text:replace_text("")
+            self:_set_input_lines(#(text:line_breaks()))
+            if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
+            end
+        elseif self._key_pressed == Idstring("delete") then
+            if s == e and s < n then
+                text:set_selection(s, e + 1)
+            end
+            text:replace_text("")
+            self:_set_input_lines(#(text:line_breaks()))
+            if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
+            end
+        elseif self._key_pressed == Idstring("left") then
+            if s < e then
+                text:set_selection(s, s)
+            elseif s > 0 then
+                text:set_selection(s - 1, s - 1)
+            end
+        elseif self._key_pressed == Idstring("right") then
+            if s < e then
+                text:set_selection(e, e)
+            elseif s < n then
+                text:set_selection(s + 1, s + 1)
+            end
         elseif self._key_pressed == Idstring("up") then
-                self:_change_line_offset(1)
+            self:_change_line_offset(1)
         elseif self._key_pressed == Idstring("down") then
-                self:_change_line_offset(-1)
+            self:_change_line_offset(-1)
         elseif self._key_pressed == Idstring("page up") then
-                self:_change_line_offset(HUDChat.MAX_OUTPUT_LINES - self._current_input_lines)
+            self:_change_line_offset(HUDChat.MAX_OUTPUT_LINES - self._current_input_lines)
         elseif self._key_pressed == Idstring("page down") then
-                self:_change_line_offset(-(HUDChat.MAX_OUTPUT_LINES - self._current_input_lines))
-        elseif self._key_pressed == Idstring("end") then
-                text:set_selection(n, n)
-        elseif self._key_pressed == Idstring("home") then
-                text:set_selection(0, 0)
-        elseif k == Idstring("enter") then
-                if type(self._enter_callback) ~= "number" then
-                        self._enter_callback()
-                end
-        elseif k == Idstring("esc") and type(self._esc_callback) ~= "number" then
-                text:set_text("")
-                text:set_selection(0, 0)
-                self._esc_callback()
+            self:_change_line_offset(-(HUDChat.MAX_OUTPUT_LINES - self._current_input_lines))
+        else
+            self._key_pressed = false
         end
         self:update_caret()
+        wait(0.03)
+    end
+end
+
+function HUDChat:key_press(o, k)
+    if self._skip_first then
+        self._skip_first = false
+        return
+    end
+    if not self._enter_text_set then
+        self._input_panel:enter_text(callback(self, self, "enter_text"))
+        self._enter_text_set = true
+    end
+    local text = self._input_panel:child("input_text")
+    local s, e = text:selection()
+    local n = utf8.len(text:text())
+    local d = math.abs(e - s)
+    self._key_pressed = k
+    text:stop()
+    text:animate(callback(self, self, "update_key_down"), k)
+    if k == Idstring("backspace") then
+        if s == e and s > 0 then
+            text:set_selection(s - 1, e)
+        end
+        text:replace_text("")
+        if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
+        end
+        self:_set_input_lines(#(text:line_breaks()))
+    elseif k == Idstring("delete") then
+        if s == e and s < n then
+            text:set_selection(s, e + 1)
+        end
+        text:replace_text("")
+        if not (utf8.len(text:text()) < 1) or type(self._esc_callback) ~= "number" then
+        end
+        self:_set_input_lines(#(text:line_breaks()))
+    elseif k == Idstring("left") then
+        if s < e then
+            text:set_selection(s, s)
+        elseif s > 0 then
+            text:set_selection(s - 1, s - 1)
+        end
+    elseif k == Idstring("right") then
+        if s < e then
+            text:set_selection(e, e)
+        elseif s < n then
+            text:set_selection(s + 1, s + 1)
+        end
+    elseif self._key_pressed == Idstring("up") then
+        self:_change_line_offset(1)
+    elseif self._key_pressed == Idstring("down") then
+        self:_change_line_offset(-1)
+    elseif self._key_pressed == Idstring("page up") then
+        self:_change_line_offset(HUDChat.MAX_OUTPUT_LINES - self._current_input_lines)
+    elseif self._key_pressed == Idstring("page down") then
+        self:_change_line_offset(-(HUDChat.MAX_OUTPUT_LINES - self._current_input_lines))
+    elseif self._key_pressed == Idstring("end") then
+        text:set_selection(n, n)
+    elseif self._key_pressed == Idstring("home") then
+        text:set_selection(0, 0)
+    elseif k == Idstring("enter") then
+        if type(self._enter_callback) ~= "number" then
+            self._enter_callback()
+        end
+    elseif k == Idstring("esc") and type(self._esc_callback) ~= "number" then
+        text:set_text("")
+        text:set_selection(0, 0)
+        self._esc_callback()
+    end
+    self:update_caret()
 end
 
 function HUDChat:_change_line_offset(diff)
@@ -550,7 +550,7 @@ end
 function HUDChat:_mouse_press(o, button, x, y)
     x = x - self._x_offset
     y = y - self._y_offset
-   
+
     if button == Idstring("mouse wheel up") then
         self:_change_line_offset(1)
     elseif button == Idstring("mouse wheel down") then
